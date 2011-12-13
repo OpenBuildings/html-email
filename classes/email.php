@@ -15,7 +15,6 @@ class Email {
 
 	// SwiftMailer instance
 	protected static $_mailer;
-	protected static $_logger;
 	protected $_config;
 
 	/**
@@ -72,8 +71,7 @@ class Email {
 
 			if(Arr::get($config, "logger"))
 			{
-				self::$_logger = new Swift_Plugins_Loggers_ArrayLogger();
-				self::$_mailer->registerPlugin(new Swift_Plugins_LoggerPlugin(self::$_logger));
+				self::$_mailer->registerPlugin(new Swift_Plugins_LoggerPlugin(new Email_Logger()));
 			}
 		}
 
@@ -205,12 +203,13 @@ class Email {
 			$this->to($to);
 		}
 
-		self::mailer()->send($this->_message);
-		
-		if(self::$_logger)
+		self::mailer()->send($this->_message, $failures);
+
+		if( count($failures) )
 		{
-			Log::instance()->add(Log::DEBUG, $this->_message->toString());
-			Log::instance()->add(Log::DEBUG, self::$_logger->dump());
+			return false;
 		}
+		
+		return true;
 	}
 } // End email
