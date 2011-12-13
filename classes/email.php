@@ -96,14 +96,14 @@ class Email {
 
 		$this->_message = Swift_Message::newInstance($subject);
 
-		if(Arr::get($config, 'from'))
+		if($from = Arr::get($this->_config, 'from'))
 		{
-			$this->from($config['from']);
+			$this->from($from);
 		}
 
-		if(Arr::get($config, 'charset'))
+		if($charset = Arr::get($this->_config, 'charset'))
 		{
-			$this->charset($config['from']);
+			$this->charset($charset);
 		}
 	}
 
