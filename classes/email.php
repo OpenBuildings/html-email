@@ -111,9 +111,9 @@ class Email {
 	{
 		$params = Arr::merge((array) $params, $this->_attachments);
 
-		if($this->_config['layout'])
+		if($layout = Arr::get($this->_config, 'layout'))
 		{
-			$body = View::factory($this->_config['layout'], array(
+			$body = View::factory($layout, array(
 				'title' => $this->_message->getSubject(), 
 				'content' => View::factory($body_view, $params)
 			));
