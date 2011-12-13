@@ -26,7 +26,7 @@ return array(
 	 * @param   string  sendmail: executable path, with -bs or equivalent attached
 	 * @param   array   smtp: hostname, (username), (password), (port), (encryption)
 	 */
-	'options' => NULL,
+	//'options' => NULL,
 	
 	/**
 	 * The layout view

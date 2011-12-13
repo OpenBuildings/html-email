@@ -56,13 +56,12 @@ class Email {
 					break;
 
 				case 'sendmail':
-					$transport = Swift_SendmailTransport::newInstance(Arr::get($config, 'options'));
-					$transport->setTimeout(Arr::path($config, 'options.timeout', 5));
+					$transport = Swift_SendmailTransport::newInstance(Arr::get($config, 'options', '/usr/sbin/sendmail -bs'));
 					break;
 
 				default:
 					// Use the native connection
-					$transport = Swift_MailTransport::newInstance(Arr::get($config, 'options'));
+					$transport = Swift_MailTransport::newInstance();
 					break;
 			}
 
@@ -209,7 +208,7 @@ class Email {
 		{
 			return false;
 		}
-		
+
 		return true;
 	}
 } // End email
