@@ -78,7 +78,7 @@ class Swift_Mime_Headers_MailboxHeader extends Swift_Mime_Headers_AbstractHeader
    * Example:
    * <code>
    * <?php
-   * //Sets two mailboxes in the Header, one with a personal name
+   * // Sets two mailboxes in the Header, one with a personal name
    * $header->setNameAddresses(array(
    *  'chris@swiftmailer.org' => 'Chris Corbyn',
    *  'mark@swiftmailer.org' //No associated personal name
@@ -94,7 +94,7 @@ class Swift_Mime_Headers_MailboxHeader extends Swift_Mime_Headers_AbstractHeader
   public function setNameAddresses($mailboxes)
   {
     $this->_mailboxes = $this->normalizeMailboxes((array) $mailboxes);
-    $this->setCachedValue(null); //Clear any cached value
+    $this->setCachedValue(null); // Clear any cached value
   }
   
   /**

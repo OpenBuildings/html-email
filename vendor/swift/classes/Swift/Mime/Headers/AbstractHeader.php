@@ -230,9 +230,9 @@ abstract class Swift_Mime_Headers_AbstractHeader implements Swift_Mime_Header
   protected function createPhrase(Swift_Mime_Header $header, $string, $charset,
     Swift_Mime_HeaderEncoder $encoder = null, $shorten = false)
   {
-    //Treat token as exactly what was given
+    // Treat token as exactly what was given
     $phraseStr = $string;
-    //If it's not valid
+    // If it's not valid
     if (!preg_match('/^' . $this->getGrammar()->getDefinition('phrase') . '$/D', $phraseStr))
     {
       // .. but it is just ascii text, try escaping some characters
@@ -246,7 +246,7 @@ abstract class Swift_Mime_Headers_AbstractHeader implements Swift_Mime_Header
       }
       else // ... otherwise it needs encoding
       {
-        //Determine space remaining on line if first line
+        // Determine space remaining on line if first line
         if ($shorten)
         {
           $usedLength = strlen($header->getFieldName() . ': ');
@@ -327,7 +327,7 @@ abstract class Swift_Mime_Headers_AbstractHeader implements Swift_Mime_Header
     $tokens = array();
     
     $encodedToken = '';
-    //Split at all whitespace boundaries
+    // Split at all whitespace boundaries
     foreach (preg_split('~(?=[\t ])~', $string) as $token)
     {
       if ($this->tokenNeedsEncoding($token))
@@ -360,7 +360,7 @@ abstract class Swift_Mime_Headers_AbstractHeader implements Swift_Mime_Header
    */
   protected function getTokenAsEncodedWord($token, $firstLineOffset = 0)
   {
-    //Adjust $firstLineOffset to account for space needed for syntax
+    // Adjust $firstLineOffset to account for space needed for syntax
     $charsetDecl = $this->_charset;
     if (isset($this->_lang))
     {
