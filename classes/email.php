@@ -70,7 +70,7 @@ class Email {
 
 			if(Arr::get($config, "logger"))
 			{
-				self::$_mailer->registerPlugin(new Swift_Plugins_LoggerPlugin(new Email_Logger()));
+				self::$_mailer->registerPlugin(new Swift_Plugins_FullLoggerPlugin(new Email_Logger()));
 			}
 		}
 
