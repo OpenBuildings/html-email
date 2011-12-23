@@ -31,7 +31,8 @@ return array(
 	/**
 	 * The layout view
 	 */
-	'layout'	=> NULL,
+	'layout_html'	=> NULL,
+	'layout_plain'	=> NULL,
 
 	/**
 	 * Encoding charset

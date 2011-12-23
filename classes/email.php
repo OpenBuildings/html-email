@@ -85,6 +85,12 @@ class Email {
 	protected $_message;
 	protected $_attachments = array();
 
+	public function antiFlood($messages_count = 100, $time = 5)
+	{
+		//Use AntiFlood to re-connect after 100 emails
+		self::$_mailer->registerPlugin(new Swift_Plugins_AntiFloodPlugin($messages_count, $time));
+	}
+
 	public function __construct($subject, $config = null)
 	{
 		self::mailer();
@@ -104,21 +110,20 @@ class Email {
 		}
 	}
 
+	public function layout($html, $plain = null)
+	{
+		$this->_config['layout_html'] = $html;
+
+		if ($plain)
+		{
+			$this->_config['layout_plain'] = $plain;
+		}
+		return $this;
+	}
+
 	public function html($body_view, $params = null)
 	{
-		$params = Arr::merge((array) $params, $this->_attachments);
-
-		if($layout = Arr::get($this->_config, 'layout'))
-		{
-			$body = View::factory($layout, array(
-				'title' => $this->_message->getSubject(), 
-				'content' => View::factory($body_view, $params)
-			));
-		}
-		else
-		{
-			$body = View::factory($body_view, $params);
-		}
+		$body = $this->body_view($body_view, $params, Arr::get($this->_config, 'layout_html'));
 		
 		if ( Arr::get($this->_config, 'inline_css'))
 		{
@@ -138,15 +143,32 @@ class Email {
 		return $this;
 	}
 
-	public function plain($body_view, $params = null)
+	public function plain($body_view, $params = NULL)
 	{
-		$params = Arr::merge((array) $params, $this->_attachments);
-
-		$body = View::factory($body_view, $params);
+		$body = $this->body_view($body_view, $params, Arr::get($this->_config, 'layout_plain'));
 
 		$this->_message->addPart($body, "text/plain");
 		return $this;
+	}	
+
+	public function body_view($view, $params, $layout = NULL)
+	{
+		$params = Arr::merge((array) $params, $this->_attachments);
+
+		if($layout)
+		{
+			return View::factory($layout, array(
+				'title' => $this->_message->getSubject(), 
+				'content' => View::factory($body_view, $params)
+			));
+		}
+		else
+		{
+			return View::factory($body_view, $params, array('title' => $this->_message->getSubject()));
+		}
 	}
+
+
 
 	public function attach($name, $file)
 	{
