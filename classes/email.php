@@ -151,7 +151,7 @@ class Email {
 		return $this;
 	}	
 
-	public function body_view($view, $params, $layout = NULL)
+	public function body_view($body_view, $params, $layout = NULL)
 	{
 		$params = Arr::merge((array) $params, $this->_attachments);
 
@@ -164,7 +164,7 @@ class Email {
 		}
 		else
 		{
-			return View::factory($body_view, $params, array('title' => $this->_message->getSubject()));
+			return View::factory($body_view, Arr::merge($params, array('title' => $this->_message->getSubject())));
 		}
 	}
 
