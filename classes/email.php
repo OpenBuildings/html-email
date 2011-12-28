@@ -194,6 +194,12 @@ class Email {
 		return $this;
 	}
 
+	public function replyTo($email, $name = NULL)
+	{
+		$this->_message->addReplyTo($email, $name);		
+		return $this;
+	}
+	
 	public function cc($email, $name = null)
 	{
 		$this->_message->addCc($email, $name);
