@@ -28,7 +28,7 @@ class Email {
 		if( ! self::$_mailer )
 		{
 			// Load default configuration
-			($config === NULL) and $config = Kohana::$config->load('html-email');
+			$config = Arr::merge(Kohana::$config->load('html-email')->as_array(), (array) $config);
 
 			if ( ! class_exists('Swift_Mailer', FALSE))
 			{
@@ -59,6 +59,10 @@ class Email {
 					$transport = Swift_SendmailTransport::newInstance(Arr::get($config, 'options', '/usr/sbin/sendmail -bs'));
 					break;
 
+				case 'null':
+					$transport = Swift_NullTransport::newInstance();
+					break;
+
 				default:
 					// Use the native connection
 					$transport = Swift_MailTransport::newInstance();
@@ -68,9 +72,16 @@ class Email {
 			// Create the SwiftMailer instance
 			self::$_mailer = Swift_Mailer::newInstance($transport);
 
-			if(Arr::get($config, "logger"))
+			if ($logger = Arr::get($config, "logger"))
 			{
-				self::$_mailer->registerPlugin(new Swift_Plugins_FullLoggerPlugin(new Email_Logger()));
+				if ($logger === TRUE)
+				{
+					self::$_mailer->registerPlugin(new Swift_Plugins_FullLoggerPlugin(new Email_Logger()));	
+				}
+				else
+				{
+					self::$_mailer->registerPlugin($logger);
+				}
 			}
 		}
 
