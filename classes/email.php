@@ -59,6 +59,11 @@ class Email {
 					$transport = Swift_SendmailTransport::newInstance(Arr::get($config, 'options', '/usr/sbin/sendmail -bs'));
 					break;
 
+				case 'postmark':
+					require_once Kohana::find_file('vendor', 'postmarktransport');
+					$transport = Swift_PostmarkTransport::newInstance(Arr::get($config, 'options'));
+					break;
+
 				case 'null':
 					$transport = Swift_NullTransport::newInstance();
 					break;
