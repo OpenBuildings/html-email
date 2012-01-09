@@ -158,7 +158,7 @@ class Email {
 	{
 
 		$body = $this->body_view($body_view, $params, Arr::get($this->_config, 'layout_plain'));
-die($body);
+
 		$this->_message->addPart($body, "text/plain");
 		return $this;
 	}	
