@@ -156,8 +156,9 @@ class Email {
 
 	public function plain($body_view, $params = NULL)
 	{
-		$body = $this->body_view($body_view, $params, Arr::get($this->_config, 'layout_plain'));
 
+		$body = $this->body_view($body_view, $params, Arr::get($this->_config, 'layout_plain'));
+die($body);
 		$this->_message->addPart($body, "text/plain");
 		return $this;
 	}	
