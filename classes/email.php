@@ -25,7 +25,7 @@ class Email {
 	 */
 	public static function mailer($config = NULL)
 	{
-		if( ! self::$_mailer )
+		if ( ! self::$_mailer )
 		{
 			// Load default configuration
 			$config = Arr::merge(Kohana::$config->load('html-email')->as_array(), (array) $config);
@@ -93,7 +93,7 @@ class Email {
 		return self::$_mailer;
 	}
 
-	static public function factory($subject, $config = null)
+	static public function factory($subject, $config = NULL)
 	{
 		return new Email($subject, $config);
 	}
@@ -107,26 +107,26 @@ class Email {
 		self::$_mailer->registerPlugin(new Swift_Plugins_AntiFloodPlugin($messages_count, $time));
 	}
 
-	public function __construct($subject, $config = null)
+	public function __construct($subject, $config = NULL)
 	{
 		self::mailer();
 
-		$this->_config = Arr::merge((array) Kohana::$config->load('html-email'), (array) $config);
+		$this->_config = Arr::merge( (array) Kohana::$config->load('html-email'), (array) $config);
 
 		$this->_message = Swift_Message::newInstance($subject);
 
-		if($from = Arr::get($this->_config, 'from'))
+		if ($from = Arr::get($this->_config, 'from'))
 		{
 			$this->from($from);
 		}
 
-		if($charset = Arr::get($this->_config, 'charset'))
+		if ($charset = Arr::get($this->_config, 'charset'))
 		{
 			$this->charset($charset);
 		}
 	}
 
-	public function layout($html, $plain = null)
+	public function layout($html, $plain = NULL)
 	{
 		$this->_config['layout_html'] = $html;
 
@@ -137,7 +137,7 @@ class Email {
 		return $this;
 	}
 
-	public function html($body_view, $params = null)
+	public function html($body_view, $params = NULL)
 	{
 		$body = $this->body_view($body_view, $params, Arr::get($this->_config, 'layout_html'));
 		
@@ -172,7 +172,7 @@ class Email {
 	{
 		$params = Arr::merge((array) $params, $this->_attachments);
 
-		if($layout)
+		if ($layout)
 		{
 			return View::factory($layout, array(
 				'title' => $this->_message->getSubject(), 
@@ -199,13 +199,13 @@ class Email {
 		return $this;
 	}
 
-	public function from($email, $name = null)
+	public function from($email, $name = NULL)
 	{
 		$this->_message->setFrom($email, $name);
 		return $this;
 	}
 
-	public function to($email, $name = null)
+	public function to($email, $name = NULL)
 	{
 		$this->_message->addTo($email, $name);
 		return $this;
@@ -217,13 +217,13 @@ class Email {
 		return $this;
 	}
 	
-	public function cc($email, $name = null)
+	public function cc($email, $name = NULL)
 	{
 		$this->_message->addCc($email, $name);
 		return $this;
 	}
 	
-	public function bcc($email, $name = null)
+	public function bcc($email, $name = NULL)
 	{
 		$this->_message->addBcc($email, $name);
 		return $this;
@@ -240,20 +240,20 @@ class Email {
 		return $this;
 	}
 
-	public function send( $to = null )
+	public function send($to = NULL)
 	{
-		if($to)
+		if ($to)
 		{
 			$this->to($to);
 		}
 
 		self::mailer()->send($this->_message, $failures);
 
-		if( count($failures) )
+		if (count($failures))
 		{
-			return false;
+			return FALSE;
 		}
 
-		return true;
+		return TRUE;
 	}
 } // End email
