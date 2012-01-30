@@ -177,11 +177,11 @@ class Email {
 			return View::factory($layout, array(
 				'title' => $this->_message->getSubject(), 
 				'content' => View::factory($body_view, $params)
-			));
+			))->render();
 		}
 		else
 		{
-			return View::factory($body_view, Arr::merge($params, array('title' => $this->_message->getSubject())));
+			return View::factory($body_view, Arr::merge($params, array('title' => $this->_message->getSubject())))->render();
 		}
 	}
 

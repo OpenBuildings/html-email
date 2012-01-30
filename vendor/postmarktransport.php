@@ -67,12 +67,12 @@ class Swift_PostmarkTransport implements Swift_Transport {
 	 * @return Swift_Mime_MimePart
 	 */
 	protected function getMIMEPart(Swift_Mime_Message $message, $mime_type) {
-		$html_part = NULL;
+		$part_content = NULL;
 		foreach ($message->getChildren() as $part) {
-			if (strpos($part->getContentType(), 'text/html') === 0)
-				$html_part = $part;
+			if (strpos($part->getContentType(), $mime_type) === 0)
+				$part_content = $part;
 		}
-		return $html_part;
+		return $part_content;
 	}
 	
 	/**
@@ -109,10 +109,15 @@ class Swift_PostmarkTransport implements Swift_Transport {
 		$message_data['From'] = $headers->get('From')->getFieldBody();
 		$headers->remove('From');
 		
-		$message_data['ReplyTo'] = $message->getReplyTo();
-		$message_data['TextBody'] = $message->getBody();
+		if ($message->getReplyTo())
+		{
+			$message_data['ReplyTo'] = key($message->getReplyTo());
+		}
+
+		if ( ! is_null($plain_part = $this->getMIMEPart($message, 'text/plain')))
+			$message_data['TextBody'] = $plain_part->getBody();
 		
-		if (!is_null($html_part = $this->getMIMEPart($message, 'text/html')))
+		if ( ! is_null($html_part = $this->getMIMEPart($message, 'text/html')))
 			$message_data['HtmlBody'] = $html_part->getBody();
 			
 		$extra_headers = array();
@@ -145,6 +150,7 @@ class Swift_PostmarkTransport implements Swift_Transport {
 	 * @return array
 	 */
 	protected function post(array $message_data) {
+
 		$curl = curl_init();
 		curl_setopt_array($curl, array(
 			CURLOPT_URL => self::POSTMARK_URI,
