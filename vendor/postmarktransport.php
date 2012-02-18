@@ -108,6 +108,8 @@ class Swift_PostmarkTransport implements Swift_Transport {
 		
 		$message_data['From'] = $headers->get('From')->getFieldBody();
 		$headers->remove('From');
+
+		$message_data['TextBody'] = $message->getBody();
 		
 		if ($message->getReplyTo())
 		{
