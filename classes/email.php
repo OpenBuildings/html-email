@@ -211,6 +211,12 @@ class Email {
 		return $this;
 	}
 
+	public function body($body)
+	{
+		$this->_message->setBody($body);
+		return $this;
+	}
+	
 	public function replyTo($email, $name = NULL)
 	{
 		$this->_message->addReplyTo($email, $name);		
