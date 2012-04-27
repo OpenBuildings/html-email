@@ -252,7 +252,7 @@ class Email {
 		{
 			$this->to($to);
 		}
-
+		
 		self::mailer()->send($this->_message, $failures);
 
 		if (count($failures))
