@@ -85,7 +85,7 @@ class Email {
 				}
 				else
 				{
-					self::$_mailer->registerPlugin($logger);
+					self::$_mailer->registerPlugin(new $logger(new Email_Logger()));
 				}
 			}
 		}
