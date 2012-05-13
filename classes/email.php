@@ -25,7 +25,7 @@ class Email {
 	 */
 	public static function mailer($config = NULL)
 	{
-		if ( ! self::$_mailer)
+		if ( ! Email::$_mailer)
 		{
 			// Load default configuration
 			$config = Arr::merge(Kohana::$config->load('html-email')->as_array(), (array) $config);
@@ -91,6 +91,11 @@ class Email {
 		}
 
 		return self::$_mailer;
+	}
+
+	static public function loaded()
+	{
+		return (bool) Email::$_mailer;
 	}
 
 	static public function factory($subject, $config = NULL)
