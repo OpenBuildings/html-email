@@ -17,6 +17,14 @@ class Email {
 	protected static $_mailer;
 	protected $_config;
 
+	public static function autoload()
+	{
+		if ( ! class_exists('Swift_Mailer', FALSE))
+		{
+			require Kohana::find_file('vendor/swift', 'swift_required');
+		}
+	}
+
 	/**
 	 * Creates a SwiftMailer instance.
 	 *
@@ -30,10 +38,7 @@ class Email {
 			// Load default configuration
 			$config = Arr::merge(Kohana::$config->load('html-email')->as_array(), (array) $config);
 
-			if ( ! class_exists('Swift_Mailer', FALSE))
-			{
-				require Kohana::find_file('vendor/swift', 'swift_required');
-			}
+			Email::autoload();
 			
 			switch ($config['driver'])
 			{
