@@ -216,7 +216,7 @@ class CSSToInlineStyles
 	 * @return	string
 	 * @param	bool[optional] $outputXHTML		Should we output valid XHTML?
 	 */
-	public function convert($outputXHTML = false)
+	public function convert($outputXHTML = false, $stripDoctype = FALSE)
 	{
 		// redefine
 		$outputXHTML = (bool) $outputXHTML;
@@ -466,6 +466,12 @@ class CSSToInlineStyles
 		{
 			// get the HTML
 			$html = $document->saveHTML();
+
+			// should we strip the doctype, html and body tags?
+			if ($stripDoctype)
+			{
+				$html = preg_replace('/^<!DOCTYPE.+?>/', '', str_replace( array('<html>', '</html>', '<body>', '</body>'), array('', '', '', ''), $html));
+			}
 		}
 
 		// cleanup the HTML if we need to
