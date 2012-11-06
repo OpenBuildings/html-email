@@ -199,13 +199,13 @@ class Email {
 
 	public function attach($name, $file)
 	{
-		$this->_attachemnts[$name] = $this->_message->attach(Swift_Attachment::fromPath($file));
+		$this->_attachments[$name] = $this->_message->attach(Swift_Attachment::fromPath($file));
 		return $this;
 	}
 
 	public function embed($name, $file)
 	{
-		$this->_attachemnts[$name] = $this->_message->embed(Swift_Attachment::fromPath($file));
+		$this->_attachments[$name] = $this->_message->embed(Swift_Attachment::fromPath($file));
 		return $this;
 	}
 
