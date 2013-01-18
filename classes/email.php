@@ -140,7 +140,7 @@ class Email {
 	{
 		$this->_config['layout_html'] = $html;
 
-		if ($plain)
+		if ($plain !== NULL)
 		{
 			$this->_config['layout_plain'] = $plain;
 		}
