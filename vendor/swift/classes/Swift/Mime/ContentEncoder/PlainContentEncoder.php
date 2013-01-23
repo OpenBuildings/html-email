@@ -119,7 +119,7 @@ class Swift_Mime_ContentEncoder_PlainContentEncoder
    * @return string
    * @access private
    */
-  private function _safeWordwrap($string, $length = 75, $le = "\r\n")
+  private function _safeWordwrap($string, $length = 70, $le = "\r\n")
   {
     if (0 >= $length)
     {

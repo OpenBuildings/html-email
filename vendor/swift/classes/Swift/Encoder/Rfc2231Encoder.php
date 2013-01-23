@@ -39,7 +39,7 @@ class Swift_Encoder_Rfc2231Encoder implements Swift_Encoder
    * RFC 2231 from it.
    * @param string $string to encode
    * @param int $firstLineOffset
-   * @param int $maxLineLength, optional, 0 indicates the default of 75 bytes
+   * @param int $maxLineLength, optional, 0 indicates the default of 70 bytes
    * @return string
    */
   public function encodeString($string, $firstLineOffset = 0,
@@ -51,7 +51,7 @@ class Swift_Encoder_Rfc2231Encoder implements Swift_Encoder
     
     if (0 >= $maxLineLength)
     {
-      $maxLineLength = 75;
+      $maxLineLength = 70;
     }
     
     $this->_charStream->flushContents();

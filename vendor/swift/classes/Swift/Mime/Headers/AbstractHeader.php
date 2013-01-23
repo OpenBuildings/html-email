@@ -370,14 +370,14 @@ abstract class Swift_Mime_Headers_AbstractHeader implements Swift_Mime_Header
       '=?' . $charsetDecl . '?' . $this->_encoder->getName() . '??='
       );
     
-    if ($firstLineOffset >= 75) //Does this logic need to be here?
+    if ($firstLineOffset >= 70) //Does this logic need to be here?
     {
       $firstLineOffset = 0;
     }
     
     $encodedTextLines = explode("\r\n",
       $this->_encoder->encodeString(
-        $token, $firstLineOffset, 75 - $encodingWrapperLength
+        $token, $firstLineOffset, 70 - $encodingWrapperLength
         )
       );
     
