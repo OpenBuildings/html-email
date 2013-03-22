@@ -262,13 +262,20 @@ class Email {
 		{
 			$this->to($to);
 		}
+
+		if ($allowed_domains = $this->_config['allowed_domains'])
+		{
+			$to = $this->_message->getTo();
+			reset($to);
+			$to = key($to);
+			if ($to AND ! in_array(substr($to[0], strpos($to, '@')), $allowed_domains))
+				return FALSE;
+		}
 		
 		self::mailer()->send($this->_message, $failures);
 
 		if (count($failures))
-		{
 			return FALSE;
-		}
 
 		return TRUE;
 	}
