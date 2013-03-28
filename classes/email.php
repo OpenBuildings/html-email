@@ -263,13 +263,21 @@ class Email {
 			$this->to($to);
 		}
 
-		if ($allowed_domains = $this->_config['allowed_domains'])
+		$allowed_domains = $this->_config['allowed_domains'];
+		
+		if ($allowed_domains)
 		{
 			$to = $this->_message->getTo();
 			reset($to);
 			$to = key($to);
-			if ($to AND ! in_array(substr($to[0], strpos($to, '@')), $allowed_domains))
-				return FALSE;
+			
+			if ($to)
+			{
+				$parts = explode('@', $to);
+
+				if ( ! in_array($parts[1], $allowed_domains))
+					return FALSE;
+			}
 		}
 		
 		self::mailer()->send($this->_message, $failures);
