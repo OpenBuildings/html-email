@@ -17,7 +17,7 @@
  * 
  * @author Chris Corbyn
  */
-class Swift_Plugins_FullLoggerPlugin extends Swift_Plugins_LoggerPlugin implements Swift_Events_SendListener
+class Swift_Plugins_Fullloggerplugin extends Swift_Plugins_LoggerPlugin implements Swift_Events_SendListener
 {
 
   private $_logger;
