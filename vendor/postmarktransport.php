@@ -121,7 +121,21 @@ class Swift_PostmarkTransport implements Swift_Transport {
 		
 		if ( ! is_null($html_part = $this->getMIMEPart($message, 'text/html')))
 			$message_data['HtmlBody'] = $html_part->getBody();
-			
+		
+		if ($message->getChildren())	
+		{
+			$message_data['Attachments'] = array();
+
+			foreach ($message->getChildren() as $attachment) 
+			{
+				$message_data['Attachments'][] = array(
+					'Name' => $attachment->getFilename(),
+					'Content' => base64_encode($attachment->getBody()),
+					'ContentType' => $attachment->getContentType()
+				);
+			}
+		}
+
 		$extra_headers = array();
 		foreach ($headers as $header) {
 			$extra_headers[] = array(

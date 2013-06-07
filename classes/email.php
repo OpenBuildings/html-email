@@ -199,7 +199,7 @@ class Email {
 
 	public function attach($name, $file)
 	{
-		$this->_attachments[$name] = $this->_message->attach(Swift_Attachment::fromPath($file));
+		$this->_attachments[$name] = $this->_message->attach(Swift_Attachment::fromPath($file)->setFilename($name));
 		return $this;
 	}
 
