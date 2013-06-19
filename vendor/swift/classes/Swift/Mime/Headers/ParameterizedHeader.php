@@ -99,7 +99,7 @@ class Swift_Mime_Headers_ParameterizedHeader
     $params = $this->getParameters();
     return array_key_exists($parameter, $params)
       ? $params[$parameter]
-      : null;
+      : NULL;
   }
   
   /**
