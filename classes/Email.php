@@ -238,10 +238,22 @@ class Email {
 		$this->_message->addCc($email, $name);
 		return $this;
 	}
+
+	public function setCc($emails, $name = NULL)
+	{
+		$this->_message->setCc($emails, $name);
+		return $this;
+	}
 	
 	public function bcc($email, $name = NULL)
 	{
 		$this->_message->addBcc($email, $name);
+		return $this;
+	}
+
+	public function setBcc($emails, $name = NULL)
+	{
+		$this->_message->setBcc($emails, $name);
 		return $this;
 	}
 
@@ -256,28 +268,38 @@ class Email {
 		return $this;
 	}
 
+	public function allowed_email($email)
+	{
+		$allowed_domains = $this->_config['allowed_domains'];
+		$parts = explode('@', $email);
+
+		return in_array($parts[1], $allowed_domains);
+	}
+
+	public function filter_emails($emails = array())
+	{
+		// get only allowed emails
+		$addresses = array_filter(array_keys((array) $emails), function($email){
+			return $this->allowed_email($email);
+		});
+		// extract names for allowed emails
+		$names = array_values(array_intersect_key((array) $emails, array_flip($addresses)));
+
+		return array_combine($addresses, $names);
+	}
+
 	public function send($to = NULL)
 	{
 		if ($to)
 		{
 			$this->to($to);
 		}
-
-		$allowed_domains = $this->_config['allowed_domains'];
 		
-		if ($allowed_domains AND $this->_message AND is_array($this->_message->getTo()) AND $this->_message->getTo())
-		{
-			$to = $this->_message->getTo();
-			reset($to);
-			$to = key($to);
-			
-			if ($to)
-			{
-				$parts = explode('@', $to);
-
-				if ( ! in_array($parts[1], $allowed_domains))
-					return FALSE;
-			}
+		if ($this->_message AND $this->_config['allowed_domains'])
+		{			
+			$this->_message->setTo($this->filter_emails($this->_message->getTo()));
+			$this->_message->setCc($this->filter_emails($this->_message->getCc()));
+			$this->_message->setBcc($this->filter_emails($this->_message->getBcc()));
 		}
 		
 		self::mailer()->send($this->_message, $failures);
