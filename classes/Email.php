@@ -278,6 +278,9 @@ class Email {
 
 	public function filter_emails($emails = array())
 	{
+		if ( ! count($emails))
+			return $emails;
+		
 		$self = $this;
 		// get only allowed emails
 		$addresses = array_filter(array_keys((array) $emails), function($email) use ($self){
