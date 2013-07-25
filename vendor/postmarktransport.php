@@ -39,9 +39,6 @@ class Swift_PostmarkTransport implements Swift_Transport {
 	/** @var array */
 	protected $IGNORED_HEADERS = array('Content-Type', 'Date');
 	
-	/** @var array */
-	protected $UNSUPPORTED_HEADERS = array('Bcc', 'Cc');
-	
 	/**
 	 * @param string $postmark_api_token Postmark API key
 	 * @param string|array $from Postmark sender signature email
@@ -83,12 +80,6 @@ class Swift_PostmarkTransport implements Swift_Transport {
 	protected function processHeaders(Swift_Mime_Headerset $headers) {
 		foreach ($this->IGNORED_HEADERS as $header_name)
 			$headers->remove($header_name);
-		
-		foreach ($this->UNSUPPORTED_HEADERS as $header_name)
-			if ($headers->has($header_name))
-				throw new Swift_PostmarkTransportException(
-					"Postmark does not support the '{$header_name}' header"
-				);
 		
 		return $headers;
 	}
@@ -196,37 +187,46 @@ class Swift_PostmarkTransport implements Swift_Transport {
 	 * @param array $failed_recipients
 	 * @return int
 	 */
-	public function send(Swift_Mime_Message $message, &$failed_recipients = NULL) {
+	public function send(Swift_Mime_Message $message, &$failed_recipients = NULL) 
+	{
 		if (!is_null($this->postmark_from_signature))
 			$message->setFrom($this->postmark_from);
 		
 		$failed_recipients = (array)$failed_recipients;
-   		$message_data = $this->buildMessageData($message);
+   	$message_data = $this->buildMessageData($message);
 
 		$send_count = 0;
-		$recipients = $message->getHeaders()->get('To');
-		$addresses = $recipients->getAddresses();
-		
-		foreach ($recipients->getNameAddressStrings() as $i => $recipient) {
+
+		foreach (array('To', 'Cc', 'Bcc') as $header_field) 
+		{
+			$recipients = $message->getHeaders()->get($header_field);
+			$addresses = $recipients->getAddresses();
 			
-			$message_data['To'] = $recipient;
-			list($response_code, $response) = $this->post($message_data);
-			
-			if ($response_code != 200) {
-				$failed_recipients[] = $addresses[$i];
+			foreach ($recipients->getNameAddressStrings() as $i => $recipient) 
+			{	
+				$message_data['To'] = $recipient;
+				list($response_code, $response) = $this->post($message_data);
 				
-				$this->fail(
-					"Postmark delivery failed with HTTP status code {$response_code}. " .
-					"Postmark said: '{$response['Message']}'"
-				);
-				
-			} else {
-				$send_count++;
+				if ($response_code != 200) 
+				{
+					$failed_recipients[] = $addresses[$i];
+					
+					$this->fail(
+						"Postmark delivery failed with HTTP status code {$response_code}. " .
+						"Postmark said: '{$response['Message']}'"
+					);
+					
+				} 
+				else 
+				{
+					$send_count++;
+				}
 			}
 		}
+
 		return $send_count;
 	}
-  
+
 	public function registerPlugin(Swift_Events_EventListener $plugin) {
 		// TODO
 	} 
