@@ -278,9 +278,10 @@ class Email {
 
 	public function filter_emails($emails = array())
 	{
+		$self = $this;
 		// get only allowed emails
-		$addresses = array_filter(array_keys((array) $emails), function($email){
-			return $this->allowed_email($email);
+		$addresses = array_filter(array_keys((array) $emails), function($email) use ($self){
+			return $self->allowed_email($email);
 		});
 		// extract names for allowed emails
 		$names = array_values(array_intersect_key((array) $emails, array_flip($addresses)));
