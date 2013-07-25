@@ -221,6 +221,12 @@ class Email {
 		return $this;
 	}
 
+	public function setTo($emails, $name = NULL)
+	{
+		$this->_message->setTo($emails, $name);
+		return $this;
+	}
+
 	public function body($body)
 	{
 		$this->_message->setBody($body);
