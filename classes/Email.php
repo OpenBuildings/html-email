@@ -280,7 +280,7 @@ class Email {
 	{
 		if ( ! count($emails))
 			return $emails;
-		
+
 		$self = $this;
 		// get only allowed emails
 		$addresses = array_filter(array_keys((array) $emails), function($email) use ($self){
@@ -288,8 +288,14 @@ class Email {
 		});
 		// extract names for allowed emails
 		$names = array_values(array_intersect_key((array) $emails, array_flip($addresses)));
+		$combined = $addresses;
 
-		return array_combine($addresses, $names);
+		if (count($names))
+		{
+			$combined = array_combine($addresses, $names);
+		}
+
+		return $combined;
 	}
 
 	public function send($to = NULL)
