@@ -193,33 +193,36 @@ class Swift_PostmarkTransport implements Swift_Transport {
 			$message->setFrom($this->postmark_from);
 		
 		$failed_recipients = (array)$failed_recipients;
-   	$message_data = $this->buildMessageData($message);
+		$message_data = $this->buildMessageData($message);
 
 		$send_count = 0;
 
 		foreach (array('To', 'Cc', 'Bcc') as $header_field) 
 		{
 			$recipients = $message->getHeaders()->get($header_field);
-			$addresses = $recipients->getAddresses();
-			
-			foreach ($recipients->getNameAddressStrings() as $i => $recipient) 
-			{	
-				$message_data['To'] = $recipient;
-				list($response_code, $response) = $this->post($message_data);
+			if ($recipients AND is_object($recipients) AND $recipients->getAddresses())
+			{
+				$addresses = $recipients->getAddresses();
 				
-				if ($response_code != 200) 
-				{
-					$failed_recipients[] = $addresses[$i];
+				foreach ($recipients->getNameAddressStrings() as $i => $recipient) 
+				{	
+					$message_data['To'] = $recipient;
+					list($response_code, $response) = $this->post($message_data);
 					
-					$this->fail(
-						"Postmark delivery failed with HTTP status code {$response_code}. " .
-						"Postmark said: '{$response['Message']}'"
-					);
-					
-				} 
-				else 
-				{
-					$send_count++;
+					if ($response_code != 200) 
+					{
+						$failed_recipients[] = $addresses[$i];
+						
+						$this->fail(
+							"Postmark delivery failed with HTTP status code {$response_code}. " .
+							"Postmark said: '{$response['Message']}'"
+						);
+						
+					} 
+					else 
+					{
+						$send_count++;
+					}
 				}
 			}
 		}
