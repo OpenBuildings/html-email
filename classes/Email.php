@@ -1,4 +1,5 @@
 <?php defined('SYSPATH') OR die('No direct access allowed.');
+
 /**
  * Email module
  *
@@ -15,15 +16,6 @@ class Email {
 
 	// SwiftMailer instance
 	protected static $_mailer;
-	protected $_config;
-
-	public static function autoload()
-	{
-		if ( ! class_exists('Swift_Mailer', FALSE))
-		{
-			require Kohana::find_file('vendor/swift', 'swift_required');
-		}
-	}
 
 	/**
 	 * Creates a SwiftMailer instance.
@@ -31,71 +23,79 @@ class Email {
 	 * @param   string  DSN connection string
 	 * @return  object  Swift object
 	 */
-	public static function mailer($config = NULL)
+	public static function mailer()
 	{
-		if ( ! Email::$_mailer)
+		if (Email::$_mailer)
+			return Email::$_mailer;
+
+		// Load default configuration
+		$config = Kohana::$config->load('html-email')->as_array();
+		
+		switch ($config['driver'])
 		{
-			// Load default configuration
-			$config = Arr::merge(Kohana::$config->load('html-email')->as_array(), (array) $config);
+			case 'smtp':
+				$transport = Swift_SmtpTransport::newInstance(
+					Arr::path($config, 'options.hostname', 'localhost'), 
+					Arr::path($config, 'options.port', 25),
+					Arr::path($config, 'options.encryption')
+				);
+				
+				$transport->setTimeout(Arr::path($config, 'options.timeout', 5));
 
-			Email::autoload();
-			
-			switch ($config['driver'])
-			{
-				case 'smtp':
-
-					$transport = Swift_SmtpTransport::newInstance(
-						Arr::path($config, 'options.hostname', 'localhost'), 
-						Arr::path($config, 'options.port', 25),
-						Arr::path($config, 'options.encryption')
-					);
-					
-					$transport->setTimeout(Arr::path($config, 'options.timeout', 5));
-
-					if($user = Arr::path($config, 'options.username') AND $pass = $user = Arr::path($config, 'options.password'))
-					{
-						$transport->setUsername($user);
-						$transport->setPassword($pass);
-					}
-
-					break;
-
-				case 'sendmail':
-					$transport = Swift_SendmailTransport::newInstance(Arr::get($config, 'options', '/usr/sbin/sendmail -bs'));
-					break;
-
-				case 'postmark':
-					require_once Kohana::find_file('vendor', 'postmarktransport');
-					$transport = Swift_PostmarkTransport::newInstance(Arr::get($config, 'options'));
-					break;
-
-				case 'null':
-					$transport = Swift_NullTransport::newInstance();
-					break;
-
-				default:
-					// Use the native connection
-					$transport = Swift_MailTransport::newInstance();
-					break;
-			}
-
-			// Create the SwiftMailer instance
-			self::$_mailer = Swift_Mailer::newInstance($transport);
-
-			if ($logger = Arr::get($config, "logger"))
-			{
-				if ($logger === TRUE)
+				$user = Arr::path($config, 'options.username');
+				$pass = Arr::path($config, 'options.password');
+				if ($user AND $pass)
 				{
-					self::$_mailer->registerPlugin(new Swift_Plugins_Fullloggerplugin(new Email_Logger()));	
+					$transport->setUsername($user);
+					$transport->setPassword($pass);
 				}
-				else
-				{
-					self::$_mailer->registerPlugin(new $logger(new Email_Logger()));
-				}
-			}
+			break;
+
+			case 'sendmail':
+				$transport = Swift_SendmailTransport::newInstance(Arr::get($config, 'options', '/usr/sbin/sendmail -bs'));
+			break;
+
+			case 'postmark':
+				$transport = Openbuildings\Postmark\Swift_PostmarkTransport::newInstance(Arr::get($config, 'options'));
+			break;
+
+			case 'null':
+				$transport = Swift_NullTransport::newInstance();
+			break;
+
+			default:
+				// Use the native connection
+				$transport = Swift_MailTransport::newInstance();
+			break;
 		}
 
-		return self::$_mailer;
+		// Create the SwiftMailer instance
+		self::$_mailer = Swift_Mailer::newInstance($transport);
+
+		if (Arr::get($config, 'inline_css'))
+		{
+			self::$_mailer->registerPLugin(new Openbuildings\Swiftmailer\CssInlinerPlugin());
+		}
+
+		if ($filter = Arr::get($config, 'filter'))
+		{
+			self::$_mailer->registerPlugin(new Openbuildings\Swiftmailer\FilterPlugin(
+				Arr::get($filter, 'whitelist', array()),
+				Arr::get($filter, 'blacklist', array()))
+			);
+		}
+
+		if ($logger = Arr::get($config, "logger"))
+		{
+			if ($logger === TRUE)
+			{
+				self::$_mailer->registerPlugin(new Swift_Plugins_LoggerPlugin(new Email_Logger()));	
+			}
+			else
+			{
+				self::$_mailer->registerPlugin(new $logger(new Email_Logger()));
+			}
+		}
 	}
 
 	static public function loaded()
@@ -108,14 +108,11 @@ class Email {
 		return new Email($subject, $config);
 	}
 
-	protected $_message;
-	protected $_attachments = array();
+	protected $_config;
 
-	public function antiFlood($messages_count = 100, $time = 5)
-	{
-		//Use AntiFlood to re-connect after 100 emails
-		self::$_mailer->registerPlugin(new Swift_Plugins_AntiFloodPlugin($messages_count, $time));
-	}
+	protected $_message;
+
+	protected $_attachments = array();
 
 	public function __construct($subject, $config = NULL)
 	{
@@ -136,6 +133,12 @@ class Email {
 		}
 	}
 
+	public function antiFlood($messages_count = 100, $time = 5)
+	{
+		// Use AntiFlood to re-connect after 100 emails
+		self::$_mailer->registerPlugin(new Swift_Plugins_AntiFloodPlugin($messages_count, $time));
+	}
+
 	public function layout($html, $plain = NULL)
 	{
 		$this->_config['layout_html'] = $html;
@@ -150,31 +153,15 @@ class Email {
 	public function html($body_view, $params = NULL)
 	{
 		$body = $this->body_view($body_view, $params, Arr::get($this->_config, 'layout_html'));
-		
-		if ( Arr::get($this->_config, 'inline_css'))
-		{
-			if ( ! class_exists('CSSToInlineStyles', FALSE))
-			{
-				// Load CSSToInlineStyles
-				require Kohana::find_file('vendor', 'csstoinlinestyles/css_to_inline_styles');
-			}
-
-			$body_html = new CSSToInlineStyles($body);
-			$body_html->setEncoding($this->_message->getCharset());
-			$body_html->setUseInlineStylesBlock();
-			$body = $body_html->convert();
-		}
-
-		$this->_message->addPart($body,  "text/html");
+		$this->_message->addPart($body,  'text/html');
 		return $this;
 	}
 
 	public function plain($body_view, $params = NULL)
 	{
-
 		$body = $this->body_view($body_view, $params, Arr::get($this->_config, 'layout_plain'));
 
-		$this->_message->addPart($body, "text/plain");
+		$this->_message->addPart($body, 'text/plain');
 		return $this;
 	}	
 
@@ -191,11 +178,11 @@ class Email {
 		}
 		else
 		{
-			return View::factory($body_view, Arr::merge($params, array('title' => $this->_message->getSubject())))->render();
+			return View::factory($body_view, Arr::merge($params, array(
+				'title' => $this->_message->getSubject()
+			)))->render();
 		}
 	}
-
-
 
 	public function attach($name, $file)
 	{
@@ -274,48 +261,11 @@ class Email {
 		return $this;
 	}
 
-	public function allowed_email($email)
-	{
-		$allowed_domains = $this->_config['allowed_domains'];
-		$parts = explode('@', $email);
-
-		return in_array($parts[1], $allowed_domains);
-	}
-
-	public function filter_emails($emails = array())
-	{
-		if ( ! count($emails))
-			return $emails;
-
-		$self = $this;
-		// get only allowed emails
-		$addresses = array_filter(array_keys((array) $emails), function($email) use ($self){
-			return $self->allowed_email($email);
-		});
-		// extract names for allowed emails
-		$names = array_values(array_intersect_key((array) $emails, array_flip($addresses)));
-		$combined = $addresses;
-
-		if (count($names))
-		{
-			$combined = array_combine($addresses, $names);
-		}
-
-		return $combined;
-	}
-
 	public function send($to = NULL)
 	{
 		if ($to)
 		{
 			$this->to($to);
-		}
-		
-		if ($this->_message AND $this->_config['allowed_domains'])
-		{			
-			$this->_message->setTo($this->filter_emails($this->_message->getTo()));
-			$this->_message->setCc($this->filter_emails($this->_message->getCc()));
-			$this->_message->setBcc($this->filter_emails($this->_message->getBcc()));
 		}
 		
 		self::mailer()->send($this->_message, $failures);

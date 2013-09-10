@@ -46,7 +46,7 @@ class Swift_Plugins_Fullloggerplugin extends Swift_Plugins_LoggerPlugin implemen
    */
   public function sendPerformed(Swift_Events_SendEvent $event)
   {
-    $this->_logger->add(sprintf("Sent Emails, Faild Recipients: ", join(', ',$event->getFailedRecipients())));    
+    $this->_logger->add(sprintf("Sent Emails, Failed Recipients: ", join(', ',$event->getFailedRecipients())));    
   }
   
 }
