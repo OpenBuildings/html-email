@@ -89,7 +89,7 @@ class Email {
 		{
 			if ($logger === TRUE)
 			{
-				self::$_mailer->registerPlugin(new Swift_Plugins_LoggerPlugin(new Email_Logger()));	
+				self::$_mailer->registerPlugin(new Swift_Plugins_Fullloggerplugin(new Email_Logger()));	
 			}
 			else
 			{
