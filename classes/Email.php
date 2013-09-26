@@ -85,6 +85,13 @@ class Email {
 			);
 		}
 
+		if ($google_campaign = Arr::get($config, 'google_campaign.campaigns'))
+		{
+			self::$_mailer->registerPlugin(new Openbuildings\Swiftmailer\GoogleCampaignPlugin(
+				$google_campaign['main'], array('share' => $google_campaign['share'])
+			));
+		}
+
 		if ($logger = Arr::get($config, "logger"))
 		{
 			if ($logger === TRUE)
