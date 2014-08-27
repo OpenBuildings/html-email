@@ -1,16 +1,12 @@
 <?php defined('SYSPATH') OR die('No direct access allowed.');
 
 /**
- * Email module
+ * Front door to the email goodness.
  *
- * Ported from Kohana 2.2.3 Core to Kohana 3.0 module
- * 
- * Updated to use Swiftmailer 4.0.4
- *
- * @package    Core
- * @author     Kohana Team
- * @copyright  (c) 2007-2008 Kohana Team
- * @license    http://kohanaphp.com/license.html
+ * @package    Email
+ * @author     Ivan Kerin <ikerin@gmail.com>
+ * @copyright  2014 OpenBuildings, Inc.
+ * @license    http://spdx.org/licenses/BSD-3-Clause
  */
 class Email {
 
@@ -30,16 +26,16 @@ class Email {
 
 		// Load default configuration
 		$config = Kohana::$config->load('html-email')->as_array();
-		
+
 		switch ($config['driver'])
 		{
 			case 'smtp':
 				$transport = Swift_SmtpTransport::newInstance(
-					Arr::path($config, 'options.hostname', 'localhost'), 
+					Arr::path($config, 'options.hostname', 'localhost'),
 					Arr::path($config, 'options.port', 25),
 					Arr::path($config, 'options.encryption')
 				);
-				
+
 				$transport->setTimeout(Arr::path($config, 'options.timeout', 5));
 
 				$user = Arr::path($config, 'options.username');
@@ -100,7 +96,7 @@ class Email {
 		{
 			if ($logger === TRUE)
 			{
-				self::$_mailer->registerPlugin(new Swift_Plugins_Fullloggerplugin(new Email_Logger()));	
+				self::$_mailer->registerPlugin(new Swift_Plugins_Fullloggerplugin(new Email_Logger()));
 			}
 			else
 			{
@@ -174,7 +170,7 @@ class Email {
 
 		$this->_message->addPart($body, 'text/plain');
 		return $this;
-	}	
+	}
 
 	public function body_view($body_view, $params, $layout = NULL)
 	{
@@ -183,7 +179,7 @@ class Email {
 		if ($layout)
 		{
 			return View::factory($layout, array(
-				'title' => $this->_message->getSubject(), 
+				'title' => $this->_message->getSubject(),
 				'content' => View::factory($body_view, $params)
 			))->render();
 		}
@@ -230,13 +226,13 @@ class Email {
 		$this->_message->setBody($body);
 		return $this;
 	}
-	
+
 	public function replyTo($email, $name = NULL)
 	{
-		$this->_message->addReplyTo($email, $name);		
+		$this->_message->addReplyTo($email, $name);
 		return $this;
 	}
-	
+
 	public function cc($email, $name = NULL)
 	{
 		$this->_message->addCc($email, $name);
@@ -248,7 +244,7 @@ class Email {
 		$this->_message->setCc($emails, $name);
 		return $this;
 	}
-	
+
 	public function bcc($email, $name = NULL)
 	{
 		$this->_message->addBcc($email, $name);
@@ -264,7 +260,7 @@ class Email {
 	public function message()
 	{
 		return $this->_message;
-	}	
+	}
 
 	public function charset($charset)
 	{
@@ -278,7 +274,7 @@ class Email {
 		{
 			$this->to($to);
 		}
-		
+
 		self::mailer()->send($this->_message, $failures);
 
 		if (count($failures))
