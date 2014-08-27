@@ -1,0 +1,19 @@
+{
+    "name": "openbuildings/html-email",
+    "type": "kohana-module",
+    "description": "Send emails with SwiftMailer, Postmark, Kohana views, logger, filter and more.",
+    "license": "BSD-3",
+    "authors": [
+        {
+            "name": "Ivan Kerin",
+            "email": "ikerin@gmail.com"
+        }
+    ],
+    "require": {
+    	"composer/installers": "~1.0",
+    	"openbuildings/postmark": "~0.1.4",
+    	"openbuildings/swiftmailer-filter": "~0.1.2",
+    	"openbuildings/swiftmailer-css-inliner": "~0.2",
+    	"openbuildings/swiftmailer-google-campaign": "~0.1.3"
+    }
+}
