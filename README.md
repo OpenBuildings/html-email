@@ -2,6 +2,16 @@
 
 Send emails from Kohana like a boss.
 
+## Install
+
+Install with [Composer](http://getcomposer.org).
+
+```
+composer require openbuildings/html-email
+```
+
+Use latest stable version like: `~0.1`.
+
 ## Usage
 
 ``` php
