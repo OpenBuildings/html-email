@@ -9,7 +9,7 @@
  */
 class Kohana_Swift_Plugins_Fullloggerplugin extends Swift_Plugins_LoggerPlugin implements Swift_Events_SendListener {
 
-	private $_logger;
+	private $logger;
 
 	/**
 	 * Create a new LoggerPlugin using $logger.
@@ -18,12 +18,14 @@ class Kohana_Swift_Plugins_Fullloggerplugin extends Swift_Plugins_LoggerPlugin i
 	 */
 	public function __construct(Swift_Plugins_Logger $logger)
 	{
-		$this->_logger = $logger;
+		parent::__construct($logger);
+
+		$this->logger = $logger;
 	}
 
 	public function beforeSendPerformed(Swift_Events_SendEvent $event)
 	{
-		$this->_logger->add(sprintf(
+		$this->logger->add(sprintf(
 			"Sending Mail:\n %s\n",
 			$event->getMessage()
 		));
@@ -35,7 +37,7 @@ class Kohana_Swift_Plugins_Fullloggerplugin extends Swift_Plugins_LoggerPlugin i
 	 */
 	public function sendPerformed(Swift_Events_SendEvent $event)
 	{
-		$this->_logger->add(sprintf(
+		$this->logger->add(sprintf(
 			"Sent Emails, Failed Recipients: ",
 			join(', ',$event->getFailedRecipients())
 		));
